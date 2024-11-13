@@ -11,7 +11,6 @@ public class Player implements Serializable {
     private int posX;
     private int posY;
     private char code;
-
     private final SimpleColor color;
 
     public Player(String name, int posX, int posY, char code, SimpleColor color) {

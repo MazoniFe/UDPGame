@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TileMap extends JPanel {
-    private final int tileSize = 40;
+    private final int tileSize = 80;
     private final int mapWidth;
     private final int mapHeight;
     private final Map<Player, Point> players;
@@ -58,9 +58,20 @@ public class TileMap extends JPanel {
             String playerName = entry.getKey().getName();
             Color playerColor = entry.getKey().getColor().toColor();
             Point position = entry.getValue();
+
+            int centerX = position.x * tileSize + (tileSize - 40) / 2;
+            int centerY = position.y * tileSize + (tileSize - 40) / 2;
+
             g.setColor(playerColor);
-            g.fillOval(position.x * tileSize + 10, position.y * tileSize + 10, 20, 20);
-            g.drawString(playerName, position.x * tileSize + 5, position.y * tileSize + 30);
+            g.fillOval(centerX, centerY, 40, 40);
+
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Arial", Font.BOLD, 12));
+            FontMetrics metrics = g.getFontMetrics();
+            int textWidth = metrics.stringWidth(playerName);
+            int textX = centerX + (40 - textWidth) / 2;
+
+            g.drawString(playerName, textX, centerY - 5);
         }
     }
 }

@@ -46,7 +46,9 @@ public class UDPServer {
 
                 if (networkMessage.getType() == NetworkMessage.MessageType.UPDATE) {
                     NetworkMessage.PlayerAction action = objectMapper.convertValue(networkMessage.getData(), NetworkMessage.PlayerAction.class);
-                    connectedPlayers.get(clientSocketAddress).move(action);
+                    if(!this.hasPlayerOnPosition(connectedPlayers.get(clientSocketAddress), action)){
+                        connectedPlayers.get(clientSocketAddress).move(action);
+                    }
                 }
 
             } catch (IOException e) {
@@ -55,11 +57,36 @@ public class UDPServer {
         }
     }
 
+    public boolean hasPlayerOnPosition(Player player, NetworkMessage.PlayerAction action) {
+        int newPosX = player.getPosX();
+        int newPosY = player.getPosY();
+
+        switch (action) {
+            case MOVE_LEFT -> {
+                newPosX--;
+            }
+            case MOVE_TOP -> {
+                newPosY--;
+            }
+            case MOVE_RIGHT -> {
+                newPosX++;
+            }
+            case MOVE_BOTTOM -> {
+                newPosY++;
+            }
+        }
+
+        int finalNewPosX = newPosX;
+        int finalNewPosY = newPosY;
+        return connectedPlayers.values().stream()
+                .anyMatch(item -> item.getPosX() == finalNewPosX && item.getPosY() == finalNewPosY);
+    }
+
+
     public void sendMessage(NetworkMessage message, InetAddress clientAddress, int clientPort) throws IOException {
         String jsonMessage = objectMapper.writeValueAsString(message);
         byte[] sendData = jsonMessage.getBytes();
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
         serverSocket.send(sendPacket);
-        System.out.println("Sent to client [" + clientAddress + ":" + clientPort + "]: " + jsonMessage);
     }
 }

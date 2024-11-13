@@ -60,9 +60,4 @@ public class UDPClient {
         });
         receiveThread.start();
     }
-
-
-    public List<Player> getConnectedPlayers(){
-        return this.connectedPlayers;
-    }
 }

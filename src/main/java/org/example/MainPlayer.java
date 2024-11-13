@@ -60,7 +60,7 @@ public class MainPlayer {
         while (true) {
             NetworkMessage message = new NetworkMessage(NetworkMessage.MessageType.STATUS_REQUEST, "GET STATUS");
             client.sendMessage(message);
-            Thread.sleep(100);
+            Thread.sleep(10);
         }
     }
 }
