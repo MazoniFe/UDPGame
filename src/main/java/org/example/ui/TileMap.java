@@ -6,17 +6,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TileMap extends JPanel {
-    private final int tileSize = 80;
+    private final int tileSize = 60;
     private final int mapWidth;
     private final int mapHeight;
-    private final Map<Player, Point> players;
+    private final Map<Player, Point> players = new ConcurrentHashMap<>();
+
 
     public TileMap(int width, int height) {
         this.mapWidth = width;
         this.mapHeight = height;
-        this.players = new HashMap<>();
         setPreferredSize(new Dimension(mapWidth * tileSize, mapHeight * tileSize));
     }
 
@@ -54,24 +55,36 @@ public class TileMap extends JPanel {
     }
 
     private void drawPlayers(Graphics g) {
-        for (Map.Entry<Player, Point> entry : players.entrySet()) {
-            String playerName = entry.getKey().getName();
-            Color playerColor = entry.getKey().getColor().toColor();
+        Map<Player, Point> playersSnapshot = new HashMap<>(players);
+        for (Map.Entry<Player, Point> entry : playersSnapshot.entrySet()) {
+            Player player = entry.getKey();
             Point position = entry.getValue();
 
-            int centerX = position.x * tileSize + (tileSize - 40) / 2;
-            int centerY = position.y * tileSize + (tileSize - 40) / 2;
+            Image spriteImage = SpriteRepository.getSpriteImage(player.getSpriteType(), player.getDirection());
+            int centerX = position.x * tileSize;
+            int centerY = position.y * tileSize;
+            int spriteSize = 50;
 
-            g.setColor(playerColor);
-            g.fillOval(centerX, centerY, 40, 40);
+            if (spriteImage != null) {
+                centerX = position.x * tileSize + (tileSize - spriteSize) / 2;
+                centerY = position.y * tileSize + (tileSize - spriteSize) / 2;
+                g.drawImage(spriteImage, centerX, centerY, spriteSize, spriteSize, null);
+            }
 
-            g.setColor(Color.BLACK);
+            g.setColor(Color.GREEN);
+
+            if (player.getIsLocalPlayer()) {
+                g.setColor(Color.GREEN);
+            } else {
+                g.setColor(Color.BLACK);
+            }
+
             g.setFont(new Font("Arial", Font.BOLD, 12));
             FontMetrics metrics = g.getFontMetrics();
-            int textWidth = metrics.stringWidth(playerName);
-            int textX = centerX + (40 - textWidth) / 2;
-
-            g.drawString(playerName, textX, centerY - 5);
+            int textWidth = metrics.stringWidth(player.getName());
+            int textX = centerX + (spriteSize - textWidth) / 2;
+            g.drawString(player.getName(), textX, centerY - 5);
         }
     }
+
 }

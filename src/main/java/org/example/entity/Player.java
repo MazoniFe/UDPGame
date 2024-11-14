@@ -1,75 +1,89 @@
 package org.example.entity;
 
 import org.example.network.NetworkMessage;
-import org.example.ui.SimpleColor;
+import org.example.ui.SpriteRepository;
 
-import java.awt.*;
 import java.io.Serializable;
+import java.net.SocketAddress;
 
 public class Player implements Serializable {
     private String name;
     private int posX;
     private int posY;
-    private char code;
-    private final SimpleColor color;
+    private String socketAddress;
+    private boolean isLocalPlayer;
 
-    public Player(String name, int posX, int posY, char code, SimpleColor color) {
+    private SpriteRepository.SpriteType spriteType = SpriteRepository.SpriteType.GOKU;
+    private SpriteRepository.Direction direction = SpriteRepository.Direction.BOTTOM;
+
+    public Player(String name, int posX, int posY, SocketAddress socketAddress) {
         this.name = name;
         this.posX = posX;
         this.posY = posY;
-        this.code = code;
-        this.color = color;
+        this.socketAddress = socketAddress != null ? socketAddress.toString() : null;
     }
 
     public Player() {
         this.name = null;
         this.posX = 0;
         this.posY = 0;
-        this.code = '\u0000';
-        this.color  = new SimpleColor();
+        this.socketAddress = null;
     }
 
     public String getName() {
         return name;
     }
 
+    public SpriteRepository.Direction getDirection() {
+        return direction;
+    }
+
     public int getPosX() {
         return posX;
     }
+
+    public String getSocketAddress() {
+        return this.socketAddress;
+    }
+
+    public void setIsLocalPlayer(boolean value) {
+        isLocalPlayer = value;
+    }
+
+    public boolean getIsLocalPlayer() {
+        return isLocalPlayer;
+    }
+
+    public void setSocketAddress(String address) {
+        this.socketAddress = address;
+    }
+
 
     public int getPosY() {
         return posY;
     }
 
-    public char getCode() {
-        return code;
-    }
-
-    public SimpleColor getColor() {
-        return color;
+    public SpriteRepository.SpriteType getSpriteType() {
+        return spriteType;
     }
 
     public void move(NetworkMessage.PlayerAction action) {
         switch (action) {
             case MOVE_LEFT -> {
-                if (this.getPosX() - 1 > 0) {
-                    this.setPosX(this.getPosX() - 1);
-                }
+                this.setPosX(this.getPosX() - 1);
+                setDirection(SpriteRepository.Direction.LEFT);
             }
             case MOVE_RIGHT -> {
-                if (this.getPosX() + 1 < 25) {
-                    this.setPosX(this.getPosX() + 1);
-                }
+                this.setPosX(this.getPosX() + 1);
+                setDirection(SpriteRepository.Direction.RIGHT);
             }
             case MOVE_TOP -> {
-                if (this.getPosY() - 1 > 0) {
-                    this.setPosY(this.getPosY() - 1);
-                }
+                this.setPosY(this.getPosY() - 1);
+                setDirection(SpriteRepository.Direction.NORTH);
             }
             case MOVE_BOTTOM -> {
-                if (this.getPosY() + 1 < 25) {
-                    this.setPosY(this.getPosY() + 1);
-                }
+                this.setPosY(this.getPosY() + 1);
+                setDirection(SpriteRepository.Direction.BOTTOM);
             }
         }
     }
@@ -87,7 +101,7 @@ public class Player implements Serializable {
         this.posY = posY;
     }
 
-    public void setCode(char code) {
-        this.code = code;
+    public void setDirection(SpriteRepository.Direction direction) {
+        this.direction = direction;
     }
 }

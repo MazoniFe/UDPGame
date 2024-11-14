@@ -35,6 +35,7 @@ public class UDPServer {
 
                 if (networkMessage.getType() == NetworkMessage.MessageType.CONNECT) {
                     Player clientPlayer = objectMapper.convertValue(networkMessage.getData(), Player.class);
+                    clientPlayer.setSocketAddress(clientSocketAddress.toString());
                     connectedPlayers.put(clientSocketAddress, clientPlayer);
                 }
 

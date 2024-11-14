@@ -47,9 +47,22 @@ public class UDPClient {
 
                     NetworkMessage networkMessage = objectMapper.readValue(receivedMessage, NetworkMessage.class);
 
-                    if(networkMessage.getType() == NetworkMessage.MessageType.STATUS_RESPONSE) {
-                        connectedPlayers = objectMapper.convertValue(networkMessage.getData(), new TypeReference<List<Player>>() {});
-                        MainPlayer.updatePlayerList(connectedPlayers);
+                    if (networkMessage.getType() == NetworkMessage.MessageType.STATUS_RESPONSE) {
+                        List<Player> players = objectMapper.convertValue(networkMessage.getData(), new TypeReference<List<Player>>() {});
+                        InetAddress localAddress = InetAddress.getLocalHost();
+                        String localIP = localAddress.getHostAddress();
+                        int localPort = clientSocket.getLocalPort();
+
+                        InetSocketAddress localSocketAddress = new InetSocketAddress(localIP, localPort);
+
+                        players.forEach(player ->  {
+                            if (NetworkUtils.isLocalPlayer(localSocketAddress, player.getSocketAddress())) {
+                                player.setIsLocalPlayer(true);
+                            } else {
+                                player.setIsLocalPlayer(false);
+                            }
+                        });
+                        MainPlayer.updatePlayerList(players);
                     }
 
                 } catch (IOException e) {

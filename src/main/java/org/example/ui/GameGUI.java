@@ -17,7 +17,7 @@ public class GameGUI {
 
     private void setupGUI() {
         frame = new JFrame("Player Tilemap");
-        tileMap = new TileMap(25, 25);
+        tileMap = new TileMap(15, 15);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(tileMap, BorderLayout.CENTER);
