@@ -47,8 +47,8 @@ public class UDPServer {
 
                 if (networkMessage.getType() == NetworkMessage.MessageType.UPDATE) {
                     NetworkMessage.PlayerAction action = objectMapper.convertValue(networkMessage.getData(), NetworkMessage.PlayerAction.class);
-                    if(!this.hasPlayerOnPosition(connectedPlayers.get(clientSocketAddress), action)){
-                        connectedPlayers.get(clientSocketAddress).move(action);
+                    if(!this.hasPlayerOnPosition(connectedPlayers.get(clientSocketAddress), action) && !connectedPlayers.get(clientSocketAddress).getActionStatus("isWalking")){
+                        connectedPlayers.get(clientSocketAddress).moveGradually(action);
                     }
                 }
 
@@ -59,8 +59,8 @@ public class UDPServer {
     }
 
     public boolean hasPlayerOnPosition(Player player, NetworkMessage.PlayerAction action) {
-        int newPosX = player.getPosX();
-        int newPosY = player.getPosY();
+        float newPosX = player.getPosX();
+        float newPosY = player.getPosY();
 
         switch (action) {
             case MOVE_LEFT -> {
@@ -77,8 +77,8 @@ public class UDPServer {
             }
         }
 
-        int finalNewPosX = newPosX;
-        int finalNewPosY = newPosY;
+        float finalNewPosX = newPosX;
+        float finalNewPosY = newPosY;
         return connectedPlayers.values().stream()
                 .anyMatch(item -> item.getPosX() == finalNewPosX && item.getPosY() == finalNewPosY);
     }

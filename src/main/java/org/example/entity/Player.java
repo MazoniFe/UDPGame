@@ -3,43 +3,27 @@ package org.example.entity;
 import org.example.network.NetworkMessage;
 import org.example.ui.SpriteRepository;
 
-import java.io.Serializable;
 import java.net.SocketAddress;
 
-public class Player implements Serializable {
+public class Player extends GenericPlayer  {
     private String name;
-    private int posX;
-    private int posY;
     private String socketAddress;
     private boolean isLocalPlayer;
 
-    private SpriteRepository.SpriteType spriteType = SpriteRepository.SpriteType.GOKU;
-    private SpriteRepository.Direction direction = SpriteRepository.Direction.BOTTOM;
-
     public Player(String name, int posX, int posY, SocketAddress socketAddress) {
+        super(posX, posY);
         this.name = name;
-        this.posX = posX;
-        this.posY = posY;
         this.socketAddress = socketAddress != null ? socketAddress.toString() : null;
     }
 
     public Player() {
+        super();
         this.name = null;
-        this.posX = 0;
-        this.posY = 0;
         this.socketAddress = null;
     }
 
     public String getName() {
         return name;
-    }
-
-    public SpriteRepository.Direction getDirection() {
-        return direction;
-    }
-
-    public int getPosX() {
-        return posX;
     }
 
     public String getSocketAddress() {
@@ -58,50 +42,53 @@ public class Player implements Serializable {
         this.socketAddress = address;
     }
 
+    public void moveGradually(NetworkMessage.PlayerAction action) {
+        float targetPosX = this.getPosX();
+        float targetPosY = this.getPosY();
 
-    public int getPosY() {
-        return posY;
-    }
-
-    public SpriteRepository.SpriteType getSpriteType() {
-        return spriteType;
-    }
-
-    public void move(NetworkMessage.PlayerAction action) {
         switch (action) {
             case MOVE_LEFT -> {
-                this.setPosX(this.getPosX() - 1);
+                targetPosX -= 1;
                 setDirection(SpriteRepository.Direction.LEFT);
             }
             case MOVE_RIGHT -> {
-                this.setPosX(this.getPosX() + 1);
+                targetPosX += 1;
                 setDirection(SpriteRepository.Direction.RIGHT);
             }
             case MOVE_TOP -> {
-                this.setPosY(this.getPosY() - 1);
+                targetPosY -= 1;
                 setDirection(SpriteRepository.Direction.NORTH);
             }
             case MOVE_BOTTOM -> {
-                this.setPosY(this.getPosY() + 1);
+                targetPosY += 1;
                 setDirection(SpriteRepository.Direction.BOTTOM);
             }
         }
-    }
 
-    // Setters
-    public void setName(String nome) {
-        this.name = nome;
-    }
+        int steps = 25;
+        int delay = 25;
+        float finalTargetPosX = targetPosX;
+        float finalTargetPosY = targetPosY;
+        setActionStatus("isWalking", true);
+        new Thread(() -> {
+            for (int i = 0; i < steps; i++) {
+                final float deltaX = (finalTargetPosX - this.getPosX()) / (steps - i);
+                final float deltaY = (finalTargetPosY - this.getPosY()) / (steps - i);
 
-    public void setPosX(int posX) {
-        this.posX = posX;
-    }
+                this.setPosX(this.getPosX() + deltaX);
+                this.setPosY(this.getPosY() + deltaY);
 
-    public void setPosY(int posY) {
-        this.posY = posY;
-    }
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
 
-    public void setDirection(SpriteRepository.Direction direction) {
-        this.direction = direction;
+            this.setPosX(finalTargetPosX);
+            this.setPosY(finalTargetPosY);
+            setActionStatus("isWalking", false);
+        }).start();
     }
 }

@@ -1,5 +1,7 @@
+
 package org.example.ui;
 
+import org.example.entity.Animation;
 import org.example.entity.Player;
 
 import javax.swing.*;
@@ -22,7 +24,7 @@ public class TileMap extends JPanel {
     }
 
     public void addPlayer(Player player) {
-        players.put(player, new Point(player.getPosX(), player.getPosY()));
+        players.put(player, new Point((int) player.getPosX(), (int) player.getPosY()));
         repaint();
     }
 
@@ -58,26 +60,26 @@ public class TileMap extends JPanel {
         Map<Player, Point> playersSnapshot = new HashMap<>(players);
         for (Map.Entry<Player, Point> entry : playersSnapshot.entrySet()) {
             Player player = entry.getKey();
-            Point position = entry.getValue();
 
-            Image spriteImage = SpriteRepository.getSpriteImage(player.getSpriteType(), player.getDirection());
-            int centerX = position.x * tileSize;
-            int centerY = position.y * tileSize;
+            float posX = player.getPosX();
+            float posY = player.getPosY();
+
+            Animation playerAnimation = SpriteRepository.getAnimation(player.getSpriteType(), player.getDirection());
+
+            int centerX = (int) (posX * tileSize);
+            int centerY = (int) (posY * tileSize);
             int spriteSize = 50;
 
-            if (spriteImage != null) {
-                centerX = position.x * tileSize + (tileSize - spriteSize) / 2;
-                centerY = position.y * tileSize + (tileSize - spriteSize) / 2;
-                g.drawImage(spriteImage, centerX, centerY, spriteSize, spriteSize, null);
+            if (playerAnimation != null) {
+                Image currentFrame = playerAnimation.getCurrentFrame();
+                if (currentFrame != null) {
+                    centerX = (int) (posX * tileSize + (tileSize - spriteSize) / 2);
+                    centerY = (int) (posY * tileSize + (tileSize - spriteSize) / 2);
+                    g.drawImage(currentFrame, centerX, centerY, spriteSize, spriteSize, null);
+                }
             }
 
-            g.setColor(Color.GREEN);
-
-            if (player.getIsLocalPlayer()) {
-                g.setColor(Color.GREEN);
-            } else {
-                g.setColor(Color.BLACK);
-            }
+            g.setColor(player.getIsLocalPlayer() ? Color.GREEN : Color.BLACK);
 
             g.setFont(new Font("Arial", Font.BOLD, 12));
             FontMetrics metrics = g.getFontMetrics();
@@ -86,5 +88,7 @@ public class TileMap extends JPanel {
             g.drawString(player.getName(), textX, centerY - 5);
         }
     }
+
+
 
 }

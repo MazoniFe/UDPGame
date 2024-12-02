@@ -26,7 +26,7 @@ public class MainPlayer {
 
         String localIP = getLocalIPAddress();
 
-        client = new UDPClient(localIP, 5001); // Use o IP real aqui
+        client = new UDPClient(localIP, 5001);
         client.receiveMessages();
 
         player = new Player(name, 0, 0, null);
